@@ -5,7 +5,7 @@ import pytest
 
 def sunExposure(latitude, longitude, elevation, targetRA, targetDec, observedTimeStr):
     # Define EarthLocation object   
-    sanDiego = EarthLocation(lon=longitude, lat=latitude, height=elevation)
+    sanDiego = EarthLocation(lat=latitude*u.deg, lon=longitude*u.deg, height=elevation*u.m)
 
     observedTime = Time(observedTimeStr, format='isot', scale='utc')
 
@@ -44,7 +44,8 @@ def test_hourAngle():
         63.7985*u.deg,
         77.9148*u.deg,
     ]
-    for observedTimeStr, expectedHourAngle, expectedZenithAngle in zip(observedTimeStr, expectedHourAngle, expectedZenithAngle):
+
+    for observedTimeStr, expectedHourAngle, expectedZenithAngle in zip(observedTimeStr, expectedHourAngles, expectedZenithAngles):
         actualHourAngle, actualZenithAngle = sunExposure(latitude, longitude, elevation, targetRA, targetDec, observedTimeStr)
 
         assert actualHourAngle == pytest.approx(expectedHourAngle, abs=1e-4)
