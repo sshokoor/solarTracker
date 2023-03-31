@@ -33,5 +33,5 @@ def test_trackSun(test_case):
     ha, za = trackSun(latitude, longitude, elevation, observed_time)
     
     # Compare the output values to the expected values
-    assert ha == pytest.approx(expected_ha, abs=1e-2)
-    assert za == pytest.approx(expected_za, abs=1e-2)
+    assert ha == pytest.approx(expected_ha.to_value(), abs=1e-2)
+    assert za == pytest.approx(expected_za.to_value(), abs=1e-2)

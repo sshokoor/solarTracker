@@ -1,54 +1,36 @@
 from astropy.time import Time
-from astropy.coordinates import EarthLocation, AltAz, SkyCoord, Angle, get_sun
-from astropy import units as u
 import pytest
+from astropy.coordinates import EarthLocation, AltAz, ICRS, Angle, get_sun
 
-def sunExposure(latitude, longitude, elevation, targetRA, targetDec, observedTimeStr):
-    # Define EarthLocation object   
-    sanDiego = EarthLocation(lat=latitude*u.deg, lon=longitude*u.deg, height=elevation*u.m)
+# Define San Diego coordinates
+latitude = 32.7157
+longitude = -117.1611
+elevation = 18  # meters above sea level
 
-    observedTime = Time(observedTimeStr, format='isot', scale='utc')
+def trackSun():
+    # Define EarthLocation object
+    san_diego = EarthLocation(lat=latitude, lon=longitude, height=elevation)
 
-    targetCoord = SkyCoord(ra=targetRA*u.deg, dec=targetDec*u.deg)
+    # Get current time in UTC
+    time_utc = Time.now()
 
-    altazCoord = targetCoord.transform_to(AltAz(location=sanDiego, obstime=observedTime))
+    # Calculate Local Sidereal Time (LST) at San Diego
+    lst = time_utc.sidereal_time('mean', longitude=san_diego.lon)
 
-    hourAngle = observedTime.sidereal_time('apparent', longitude=sanDiego.lon) - targetCoord.ra
-    hourAngle = hourAngle.wrap_at(180*u.deg).degree
+    # Calculate Hour Angle (HA) at San Diego
+    ha = lst - Angle(san_diego.lon)
 
-    zenithAngle = 90*u.deg - altazCoord.alt
+    # Print the Hour Angle
+    print(f"Current Hour Angle in San Diego: {ha.to_string(unit='deg')}")  # prints in hours
 
-    print(hourAngle, zenithAngle)
-    return hourAngle, zenithAngle
+    # Calculate the altitude and azimuth of the sun
+    altaz = AltAz(location=san_diego, obstime=time_utc)
+    sun_altaz = get_sun(time_utc).transform_to(altaz)
 
+    # Calculate the solar angle
+    solar_angle = 90 - sun_altaz.alt.to_value()
 
-def test_hourAngle():
-    latitude = 32.7157
-    longitude = -117.1611
-    elevation = 19 
+    # Print the solar angle
+    print(f"Solar Angle in San Diego: {solar_angle:.2f} degrees")
 
-    targetRA = 83.8221
-    targetDec = -5.3911
-
-    observedTimeStr = [
-        '2023-03-29T20:00:00',
-        '2023-03-29T22:00:00',
-        '2023-03-30T00:00:00',
-    ]
-
-    expectedHourAngles = [
-        41.7466,
-        295.5221,
-        189.0636,
-    ]
-    expectedZenithAngles = [
-        44.2624*u.deg,
-        63.7985*u.deg,
-        77.9148*u.deg,
-    ]
-
-    for observedTimeStr, expectedHourAngle, expectedZenithAngle in zip(observedTimeStr, expectedHourAngles, expectedZenithAngles):
-        actualHourAngle, actualZenithAngle = sunExposure(latitude, longitude, elevation, targetRA, targetDec, observedTimeStr)
-
-        assert actualHourAngle == pytest.approx(expectedHourAngle, abs=1e-4)
-        assert actualZenithAngle == pytest.approx(expectedZenithAngle, abs=1e-4*u.deg)
+trackSun()

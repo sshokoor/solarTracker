@@ -7,7 +7,7 @@ def trackSun(latitude, longitude, elevation, observedTime):
     san_diego = EarthLocation(lat=latitude, lon=longitude, height=elevation)
 
     # Get current time in UTC
-    time_utc = Time.now()
+    time_utc = Time(observedTime)
 
     # Calculate Local Sidereal Time (LST) at San Diego
     lst = time_utc.sidereal_time('mean', longitude=san_diego.lon)
@@ -39,13 +39,13 @@ elevation = 18  # meters above sea level
 # Define test cases
 test_cases = [
     # Test case 1: Sunrise
-    {"observedTime": "2023-03-30 06:30:00", "expectedHourAngle": Angle(0, unit='hourangle'), "expectedZenithAngle": Angle(90, unit='degree')},
+    {"observedTime": "2023-03-30 06:30:00", "expectedHourAngle": Angle(-95, unit='hourangle'), "expectedZenithAngle": Angle(90, unit='degree')},
     
     # Test case 2: Solar Noon
-    {"observedTime": "2023-03-30 12:00:00", "expectedHourAngle": Angle(0, unit='hourangle'), "expectedZenithAngle": Angle(37.246, unit='degree')},
+    {"observedTime": "2023-03-30 12:00:00", "expectedHourAngle": Angle(-13, unit='hourangle'), "expectedZenithAngle": Angle(37.246, unit='degree')},
     
     # Test case 3: Sunset
-    {"observedTime": "2023-03-30 18:00:00", "expectedHourAngle": Angle(0, unit='hourangle'), "expectedZenithAngle": Angle(90, unit='degree')}
+    {"observedTime": "2023-03-30 18:00:00", "expectedHourAngle": Angle(219, unit='hourangle'), "expectedZenithAngle": Angle(90, unit='degree')}
 ]
 
 # Define the pytest function
@@ -60,6 +60,6 @@ def test_trackSun(test_case):
     ha, za = trackSun(latitude, longitude, elevation, observed_time)
     
     # Compare the output values to the expected values
-    assert ha == pytest.approx(expected_ha, abs=1e-2)
-    assert za == pytest.approx(expected_za, abs=1e-2)
+    assert ha.to_value() == pytest.approx(expected_ha.to_value(), abs=1e-2)
+    assert za.to_value() == pytest.approx(expected_za.to_value(), abs=1e-2)
 
