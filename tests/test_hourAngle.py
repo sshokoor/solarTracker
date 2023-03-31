@@ -1,34 +1,37 @@
 import pytest
-import astropy as u
-from solarTracker. import sunExposure
-from hourAngle import sunExposure
+from astropy.coordinates import Angle
 
-def test_hourAngle():
-    latitude = 32.7157
-    longitude = -117.1611
-    elevation = 19 
+# Import the trackSun function from your code file
+from ..tester import trackSun
 
-    targetRA = 83.8221
-    targetDec = -5.3911
+# Define San Diego coordinates
+latitude = 32.7157
+longitude = -117.1611
+elevation = 18  # meters above sea level
 
-    observedTimeStr = [
-        '2023-03-29T20:00:00',
-        '2023-03-29T22:00:00',
-        '2023-03-30T00:00:00',
-    ]
+# Define test cases
+test_cases = [
+    # Test case 1: Sunrise
+    {"observedTime": "2023-03-30 06:30:00", "expectedHourAngle": Angle(0, unit='hourangle'), "expectedZenithAngle": Angle(90, unit='degree')},
+    
+    # Test case 2: Solar Noon
+    {"observedTime": "2023-03-30 12:00:00", "expectedHourAngle": Angle(0, unit='hourangle'), "expectedZenithAngle": Angle(37.246, unit='degree')},
+    
+    # Test case 3: Sunset
+    {"observedTime": "2023-03-30 18:00:00", "expectedHourAngle": Angle(0, unit='hourangle'), "expectedZenithAngle": Angle(90, unit='degree')}
+]
 
-    expectedHourAngles = [
-        41.7466,
-        295.5221,
-        189.0636,
-    ]
-    expectedZenithAngles = [
-        44.2624*u.deg,
-        63.7985*u.deg,
-        77.9148*u.deg,
-    ]
-    for observedTimeStr, expectedHourAngle, expectedZenithAngle in zip(observedTimeStr, expectedHourAngles, expectedZenithAngles):
-        actualHourAngle, actualZenithAngle = sunExposure(latitude, longitude, elevation, targetRA, targetDec, observedTimeStr)
-
-        assert actualHourAngle == pytest.approx(expectedHourAngle, abs=1e-4)
-        assert actualZenithAngle == pytest.approx(expectedZenithAngle, abs=1e-4*u.deg)
+# Define the pytest function
+@pytest.mark.parametrize("test_case", test_cases)
+def test_trackSun(test_case):
+    # Extract the input values from the test case dictionary
+    observed_time = test_case["observedTime"]
+    expected_ha = test_case["expectedHourAngle"]
+    expected_za = test_case["expectedZenithAngle"]
+    
+    # Call the trackSun function with the observed time
+    ha, za = trackSun(latitude, longitude, elevation, observed_time)
+    
+    # Compare the output values to the expected values
+    assert ha == pytest.approx(expected_ha, abs=1e-2)
+    assert za == pytest.approx(expected_za, abs=1e-2)

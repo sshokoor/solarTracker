@@ -1,52 +1,65 @@
 from astropy.time import Time
-from astropy.coordinates import EarthLocation, AltAz, SkyCoord, Angle, get_sun
-from astropy import units as u
 import pytest
+from astropy.coordinates import EarthLocation, AltAz, ICRS, Angle, get_sun
 
-def sunExposure(latitude, longitude, elevation, targetRA, targetDec, observedTimeStr):
-    # Define EarthLocation object   
-    sanDiego = EarthLocation(lat=latitude*u.deg, lon=longitude*u.deg, height=elevation*u.m)
+def trackSun(latitude, longitude, elevation, observedTime):
+    # Define EarthLocation object
+    san_diego = EarthLocation(lat=latitude, lon=longitude, height=elevation)
 
-    observedTime = Time(observedTimeStr, format='isot', scale='utc')
+    # Get current time in UTC
+    time_utc = Time.now()
 
-    targetCoord = SkyCoord(ra=targetRA*u.deg, dec=targetDec*u.deg)
+    # Calculate Local Sidereal Time (LST) at San Diego
+    lst = time_utc.sidereal_time('mean', longitude=san_diego.lon)
 
-    altazCoord = targetCoord.transform_to(AltAz(location=sanDiego, obstime=observedTime))
+    # Calculate Hour Angle (HA) at San Diego
+    ha = lst - Angle(san_diego.lon)
 
-    hourAngle = observedTime.sidereal_time('apparent', longitude=sanDiego.lon) - targetCoord.ra
-    hourAngle = hourAngle.wrap_at(180*u.deg).degree
+    # Print the Hour Angle
+    # print(f"Current Hour Angle in San Diego: {ha.to_string(unit='hourangle')}")  # prints in hours
 
-    zenithAngle = 90*u.deg - altazCoord.alt
+    # Calculate the altitude and azimuth of the sun
+    altaz = AltAz(location=san_diego, obstime=time_utc)
+    sun_altaz = get_sun(time_utc).transform_to(altaz)
 
-    return hourAngle, zenithAngle
+    # Calculate the solar angle
+    solar_angle = 90 - sun_altaz.alt.to_value()
 
-def test_hourAngle():
-    latitude = 32.7157
-    longitude = -117.1611
-    elevation = 19 
+    # Print the solar angle
+    # print(f"Solar Angle in San Diego: {solar_angle:.2f} degrees")
 
-    targetRA = 83.8221
-    targetDec = -5.3911
+    return ha, solar_angle
 
-    observedTimeStr = [
-        '2023-03-29T20:00:00',
-        '2023-03-29T22:00:00',
-        '2023-03-30T00:00:00',
-    ]
 
-    expectedHourAngles = [
-        41.7466,
-        295.5221,
-        189.0636,
-    ]
-    expectedZenithAngles = [
-        44.2624*u.deg,
-        63.7985*u.deg,
-        77.9148*u.deg,
-    ]
+# Define San Diego coordinates
+latitude = 32.7157
+longitude = -117.1611
+elevation = 18  # meters above sea level
 
-    for observedTimeStr, expectedHourAngle, expectedZenithAngle in zip(observedTimeStr, expectedHourAngles, expectedZenithAngles):
-        actualHourAngle, actualZenithAngle = sunExposure(latitude, longitude, elevation, targetRA, targetDec, observedTimeStr)
+# Define test cases
+test_cases = [
+    # Test case 1: Sunrise
+    {"observedTime": "2023-03-30 06:30:00", "expectedHourAngle": Angle(0, unit='hourangle'), "expectedZenithAngle": Angle(90, unit='degree')},
+    
+    # Test case 2: Solar Noon
+    {"observedTime": "2023-03-30 12:00:00", "expectedHourAngle": Angle(0, unit='hourangle'), "expectedZenithAngle": Angle(37.246, unit='degree')},
+    
+    # Test case 3: Sunset
+    {"observedTime": "2023-03-30 18:00:00", "expectedHourAngle": Angle(0, unit='hourangle'), "expectedZenithAngle": Angle(90, unit='degree')}
+]
 
-        assert actualHourAngle == pytest.approx(expectedHourAngle, abs=1e-4)
-        assert actualZenithAngle == pytest.approx(expectedZenithAngle, abs=1e-4*u.deg)
+# Define the pytest function
+@pytest.mark.parametrize("test_case", test_cases)
+def test_trackSun(test_case):
+    # Extract the input values from the test case dictionary
+    observed_time = test_case["observedTime"]
+    expected_ha = test_case["expectedHourAngle"]
+    expected_za = test_case["expectedZenithAngle"]
+    
+    # Call the trackSun function with the observed time
+    ha, za = trackSun(latitude, longitude, elevation, observed_time)
+    
+    # Compare the output values to the expected values
+    assert ha == pytest.approx(expected_ha, abs=1e-2)
+    assert za == pytest.approx(expected_za, abs=1e-2)
+

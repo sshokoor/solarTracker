@@ -1,26 +1,8 @@
-from astropy.time import Time
-from astropy.coordinates import EarthLocation, AltAz, SkyCoord, Angle, get_sun
-from astropy import units as u
 import pytest
+from astropy.coordinates import Angle
 
-def sunExposure(latitude, longitude, elevation, targetRA, targetDec, observedTimeStr):
-    # Define EarthLocation object   
-    sanDiego = EarthLocation(lat=latitude*u.deg, lon=longitude*u.deg, height=elevation*u.m)
-
-    observedTime = Time(observedTimeStr, format='isot', scale='utc')
-
-    targetCoord = SkyCoord(ra=targetRA*u.deg, dec=targetDec*u.deg)
-
-    altazCoord = targetCoord.transform_to(AltAz(location=sanDiego, obstime=observedTime))
-
-    hourAngle = observedTime.sidereal_time('apparent', longitude=sanDiego.lon) - targetCoord.ra
-    hourAngle = hourAngle.wrap_at(180*u.deg).degree
-
-    zenithAngle = 90*u.deg - altazCoord.alt
-
-    print(hourAngle, zenithAngle)
-    return hourAngle, zenithAngle
-
+# Import the trackSun function from your code file
+from ..tester import sunExposure
 
 def test_hourAngle():
     latitude = 32.7157
