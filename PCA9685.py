@@ -103,10 +103,9 @@ if __name__=='__main__':
   pwm.setServoPulse(1, altitudePulse)
   pwm.setServoPulse(0, azimuthPulse)
   time.sleep(2)
-
-  # Kills the servos
-  pwm.write(0x00, 0x00)
-  pwm.write(0x00, 0x06)
+  
+  pwm.setPWM(0,0,0)
+  pwm.setPWM(1,0,0)
   
 
   
