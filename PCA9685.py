@@ -93,17 +93,22 @@ class PCA9685:
 if __name__=='__main__':
  
   pwm = PCA9685(0x40, debug=False)
-  
   pwm.setPWMFreq(50)
+
   altitude = 90
   azimuth = 270
+
+  # translating the values from hour and solar angle to the board values
   azimuthPulse = map_value(azimuth, 0, 270, 500, 2500)
   altitudePulse = map_value(altitude, 0, 90, 500, 2500)
   print(altitudePulse)
+
+  # Converting altitude and azimuth pulse to angles of the sun
   pwm.setServoPulse(1, altitudePulse)
   pwm.setServoPulse(0, azimuthPulse)
   time.sleep(2)
-  
+
+  # Kill the servos
   pwm.setPWM(0,0,0)
   pwm.setPWM(1,0,0)
   
