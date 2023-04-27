@@ -95,8 +95,8 @@ if __name__=='__main__':
   pwm = PCA9685(0x40, debug=False)
   
   pwm.setPWMFreq(50)
-  pwm.write(pwm._MODE1, 0x00)
-  pwm.write(pwm._MODE1, 0x06)
+  pwm.write(pwm.__MODE1, 0x00)
+  pwm.write(pwm.__MODE1, 0x06)
 
   hourAngle = 90
   hourAnglePulse = map_value(hourAngle, 0, 90, 500, 2500)
