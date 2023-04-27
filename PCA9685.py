@@ -114,7 +114,7 @@ if __name__=='__main__':
   pwm.setPWM(0,0,0)
   pwm.setPWM(1,0,0)
   
-  # getSunPosition()
+  getSunPosition()
 
   
 
