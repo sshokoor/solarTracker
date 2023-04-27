@@ -1,5 +1,4 @@
 #!/usr/bin/python
-
 import time
 import math
 import smbus
@@ -7,6 +6,16 @@ import smbus
 # ============================================================================
 # Raspi PCA9685 16-Channel PWM Servo Driver
 # ============================================================================
+
+def map_value(num, in_min, in_max, out_min, out_max):           # (3)
+    """Helper method to map an input value (v_in)
+       between alternative max/min ranges."""
+    num = (num - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+    if num < out_min: 
+      num = out_min 
+    elif num > out_max: 
+      num = out_max
+    return num
 
 class PCA9685:
 
@@ -45,7 +54,7 @@ class PCA9685:
     if (self.debug):
       print("I2C: Device 0x%02X returned 0x%02X from reg 0x%02X" % (self.address, result & 0xFF, reg))
     return result
-	
+  
   def setPWMFreq(self, freq):
     "Sets the PWM frequency"
     prescaleval = 25000000.0    # 25MHz
@@ -85,10 +94,18 @@ if __name__=='__main__':
  
   pwm = PCA9685(0x40, debug=False)
   pwm.setPWMFreq(50)
-  
-  setServoPulse(2,950)
 
+  hourAngle = 90
+  hourAnglePulse = map_value(hourAngle, 0, 90, 500, 2500)
+  print(hourAnglePulse)
+  pwm.setServoPulse(0, hourAnglePulse)
+  time.sleep(2)
+
+
+# 0 = 500
+# 90 = 2500 
 """
+
   while True:
    # setServoPulse(2,2500)
     for i in range(500,2500,10):  
@@ -99,3 +116,6 @@ if __name__=='__main__':
       pwm.setServoPulse(0,i) 
       time.sleep(0.02)  
 """
+
+
+	
