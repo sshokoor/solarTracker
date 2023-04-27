@@ -100,8 +100,8 @@ if __name__=='__main__':
   azimuthPulse = map_value(azimuth, 0, 270, 500, 2500)
   altitudePulse = map_value(altitude, 0, 90, 500, 2500)
   print(altitudePulse)
-  pwm.setServoPulse(0, altitudePulse)
-  pwm.setServoPulse(1, azimuthPulse)
+  pwm.setServoPulse(1, altitudePulse)
+  pwm.setServoPulse(0, azimuthPulse)
   time.sleep(2)
 
   # Kills the servos
