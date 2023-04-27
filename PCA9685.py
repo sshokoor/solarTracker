@@ -108,14 +108,13 @@ if __name__=='__main__':
   # Converting altitude and azimuth pulse to angles of the sun
   pwm.setServoPulse(1, altitudePulse)
   pwm.setServoPulse(0, azimuthPulse)
-  # suspend time for 1 minute
-  time.sleep(60)
+  time.sleep(2)
 
   # Kill the servos
   pwm.setPWM(0,0,0)
   pwm.setPWM(1,0,0)
   
-  getSunPosition()
+  # getSunPosition()
 
   
 
