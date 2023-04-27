@@ -95,16 +95,21 @@ if __name__=='__main__':
   pwm = PCA9685(0x40, debug=False)
   
   pwm.setPWMFreq(50)
-  pwm.write(0x00, 0x00)
-  pwm.write(0x00, 0x06)
-
-  hourAngle = 90
-  hourAnglePulse = map_value(hourAngle, 0, 90, 500, 2500)
-  print(hourAnglePulse)
-  pwm.setServoPulse(0, hourAnglePulse)
+  altitude = 90
+  azimuth = 270
+  azimuthPulse = map_value(azimuth, 0, 270, 500, 2500)
+  altitudePulse = map_value(altitude, 0, 90, 500, 2500)
+  print(altitudePulse)
+  pwm.setServoPulse(0, altitudePulse)
+  pwm.setServoPulse(1, azimuthPulse)
   time.sleep(2)
 
-  pwm = PCA9685(0x40, debug=False)
+  # Kills the servos
+  pwm.write(0x00, 0x00)
+  pwm.write(0x00, 0x06)
+  
+
+  
 
 
 

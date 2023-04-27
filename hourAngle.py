@@ -3,6 +3,7 @@ from astropy.time import Time
 from datetime import datetime, timezone
 
 def getSunPosition(latitude, longitude, elevation, observedTime):
+    """Returns the """
     # Define EarthLocation object
     sd_location = EarthLocation(lat=str(latitude) + ' deg', lon=str(longitude) + ' deg', height=elevation)
 
