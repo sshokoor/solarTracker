@@ -93,14 +93,14 @@ class PCA9685:
 if __name__=='__main__':
  
   pwm = PCA9685(0x40, debug=False)
-  pwm.setPWMFreq(50)
+  
 
   hourAngle = 90
   hourAnglePulse = map_value(hourAngle, 0, 90, 500, 2500)
   print(hourAnglePulse)
   pwm.setServoPulse(0, hourAnglePulse)
   time.sleep(2)
-
+  pwm.setPWMFreq(0)
 
 # 0 = 500
 # 90 = 2500 
