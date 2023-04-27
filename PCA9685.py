@@ -2,6 +2,7 @@
 import time
 import math
 import smbus
+from hourAngle import getSunPosition, alt_az
 
 # ============================================================================
 # Raspi PCA9685 16-Channel PWM Servo Driver
@@ -95,8 +96,9 @@ if __name__=='__main__':
   pwm = PCA9685(0x40, debug=False)
   pwm.setPWMFreq(50)
 
-  altitude = 90
-  azimuth = 270
+  #import hourAngle.py values 
+  altitude = alt_az.alt
+  azimuth = alt_az.az
 
   # translating the values from hour and solar angle to the board values
   azimuthPulse = map_value(azimuth, 0, 270, 500, 2500)
@@ -112,13 +114,10 @@ if __name__=='__main__':
   pwm.setPWM(0,0,0)
   pwm.setPWM(1,0,0)
   
+  getSunPosition()
 
   
 
-
-
-# 0 = 500
-# 90 = 2500 
 """
 
   while True:
