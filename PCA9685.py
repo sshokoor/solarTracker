@@ -101,7 +101,8 @@ if __name__=='__main__':
   print(hourAnglePulse)
   pwm.setServoPulse(0, hourAnglePulse)
   time.sleep(2)
-  pwm.setPWMFreq(1)
+  
+  pwm = PCA9685(0x40, debug=False)
 
 
 
