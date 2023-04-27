@@ -101,7 +101,7 @@ if __name__=='__main__':
   print(hourAnglePulse)
   pwm.setServoPulse(0, hourAnglePulse)
   time.sleep(2)
-  pwm.setPWMFreq(25)
+  pwm.setPWMFreq(1)
 
 
 
