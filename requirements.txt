@@ -1,4 +1,3 @@
-gpiozero
 astropy
 pytest
 smbus
