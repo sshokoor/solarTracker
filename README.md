@@ -2,7 +2,7 @@
 # Solar Tracker
 ![Image](servo.jpg)
 
-Program to control a servo to get the maximum sun exposure
+A program using Astropy library and Raspberry Pi to control a servo to get maximum sun exposure, it involves tracking the position of the sun in the sky and adjusting a servo motor to align a solar panel or other device with the sun's rays. 
 
 
 ## Authors
