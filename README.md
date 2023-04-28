@@ -32,7 +32,7 @@ ssh <IP address>
 git clone https://github.com/sshokoor/solarTracker.git
 ```
 
-![Image](./servo.png)
+![Image](/servo.png)
 ## Resources
 1. [Astropy](https://docs.astropy.org/en/stable/time/index.html) : astropy documentation for using date and time 
 2. [Solar Calculator](https://gml.noaa.gov/grad/solcalc/azel.html) : solar calculator we used for reference to test our azimuth and altitude calculations
