@@ -2,121 +2,86 @@
 import time
 import math
 import smbus
-from hourAngle import getSunPosition, alt_az
 
 # ============================================================================
 # Raspi PCA9685 16-Channel PWM Servo Driver
 # ============================================================================
 
-def map_value(num, in_min, in_max, out_min, out_max):           # (3)
-    """Helper method to map an input value (v_in)
-       between alternative max/min ranges."""
-    num = (num - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
-    if num < out_min: 
-      num = out_min 
-    elif num > out_max: 
-      num = out_max
-    return num
 
 class PCA9685:
 
-  # Registers/etc.
-  __SUBADR1            = 0x02
-  __SUBADR2            = 0x03
-  __SUBADR3            = 0x04
-  __MODE1              = 0x00
-  __PRESCALE           = 0xFE
-  __LED0_ON_L          = 0x06
-  __LED0_ON_H          = 0x07
-  __LED0_OFF_L         = 0x08
-  __LED0_OFF_H         = 0x09
-  __ALLLED_ON_L        = 0xFA
-  __ALLLED_ON_H        = 0xFB
-  __ALLLED_OFF_L       = 0xFC
-  __ALLLED_OFF_H       = 0xFD
+    # Registers/etc.
+    __SUBADR1 = 0x02
+    __SUBADR2 = 0x03
+    __SUBADR3 = 0x04
+    __MODE1 = 0x00
+    __PRESCALE = 0xFE
+    __LED0_ON_L = 0x06
+    __LED0_ON_H = 0x07
+    __LED0_OFF_L = 0x08
+    __LED0_OFF_H = 0x09
+    __ALLLED_ON_L = 0xFA
+    __ALLLED_ON_H = 0xFB
+    __ALLLED_OFF_L = 0xFC
+    __ALLLED_OFF_H = 0xFD
 
-  def __init__(self, address=0x40, debug=False):
-    self.bus = smbus.SMBus(1)
-    self.address = address
-    self.debug = debug
-    if (self.debug):
-      print("Reseting PCA9685")
-    self.write(self.__MODE1, 0x00)
-	
-  def write(self, reg, value):
-    "Writes an 8-bit value to the specified register/address"
-    self.bus.write_byte_data(self.address, reg, value)
-    if (self.debug):
-      print("I2C: Write 0x%02X to register 0x%02X" % (value, reg))
-	  
-  def read(self, reg):
-    "Read an unsigned byte from the I2C device"
-    result = self.bus.read_byte_data(self.address, reg)
-    if (self.debug):
-      print("I2C: Device 0x%02X returned 0x%02X from reg 0x%02X" % (self.address, result & 0xFF, reg))
-    return result
-  
-  def setPWMFreq(self, freq):
-    "Sets the PWM frequency"
-    prescaleval = 25000000.0    # 25MHz
-    prescaleval /= 4096.0       # 12-bit
-    prescaleval /= float(freq)
-    prescaleval -= 1.0
-    if (self.debug):
-      print("Setting PWM frequency to %d Hz" % freq)
-      print("Estimated pre-scale: %d" % prescaleval)
-    prescale = math.floor(prescaleval + 0.5)
-    if (self.debug):
-      print("Final pre-scale: %d" % prescale)
+    def __init__(self, address=0x40, debug=False):
+        self.bus = smbus.SMBus(1)
+        self.address = address
+        self.debug = debug
+        if (self.debug):
+            print("Reseting PCA9685")
+        self.write(self.__MODE1, 0x00)
 
-    oldmode = self.read(self.__MODE1);
-    newmode = (oldmode & 0x7F) | 0x10        # sleep
-    self.write(self.__MODE1, newmode)        # go to sleep
-    self.write(self.__PRESCALE, int(math.floor(prescale)))
-    self.write(self.__MODE1, oldmode)
-    time.sleep(0.005)
-    self.write(self.__MODE1, oldmode | 0x80)
+    def write(self, reg, value):
+        "Writes an 8-bit value to the specified register/address"
+        self.bus.write_byte_data(self.address, reg, value)
+        if (self.debug):
+            print("I2C: Write 0x%02X to register 0x%02X" % (value, reg))
 
-  def setPWM(self, channel, on, off):
-    "Sets a single PWM channel"
-    self.write(self.__LED0_ON_L+4*channel, on & 0xFF)
-    self.write(self.__LED0_ON_H+4*channel, on >> 8)
-    self.write(self.__LED0_OFF_L+4*channel, off & 0xFF)
-    self.write(self.__LED0_OFF_H+4*channel, off >> 8)
-    if (self.debug):
-      print("channel: %d  LED_ON: %d LED_OFF: %d" % (channel,on,off))
-	  
-  def setServoPulse(self, channel, pulse):
-    "Sets the Servo Pulse,The PWM frequency must be 50HZ"
-    pulse = pulse*4096/20000        #PWM frequency is 50HZ,the period is 20000us
-    self.setPWM(channel, 0, int(pulse))
+    def read(self, reg):
+        "Read an unsigned byte from the I2C device"
+        result = self.bus.read_byte_data(self.address, reg)
+        if (self.debug):
+            print("I2C: Device 0x%02X returned 0x%02X from reg 0x%02X" %
+                  (self.address, result & 0xFF, reg))
+        return result
 
-if __name__=='__main__':
- 
-  pwm = PCA9685(0x40, debug=False)
-  pwm.setPWMFreq(50)
+    def setPWMFreq(self, freq):
+        "Sets the PWM frequency"
+        prescaleval = 25000000.0    # 25MHz
+        prescaleval /= 4096.0       # 12-bit
+        prescaleval /= float(freq)
+        prescaleval -= 1.0
+        if (self.debug):
+            print("Setting PWM frequency to %d Hz" % freq)
+            print("Estimated pre-scale: %d" % prescaleval)
+        prescale = math.floor(prescaleval + 0.5)
+        if (self.debug):
+            print("Final pre-scale: %d" % prescale)
 
-  #import hourAngle.py values 
-  altitude = alt_az.alt
-  azimuth = alt_az.az
+        oldmode = self.read(self.__MODE1)
+        newmode = (oldmode & 0x7F) | 0x10        # sleep
+        self.write(self.__MODE1, newmode)        # go to sleep
+        self.write(self.__PRESCALE, int(math.floor(prescale)))
+        self.write(self.__MODE1, oldmode)
+        time.sleep(0.005)
+        self.write(self.__MODE1, oldmode | 0x80)
 
-  # translating the values from hour and solar angle to the board values
-  azimuthPulse = map_value(azimuth, 0, 270, 500, 2500)
-  altitudePulse = map_value(altitude, 0, 90, 500, 2500)
-  print(altitudePulse)
+    def setPWM(self, channel, on, off):
+        "Sets a single PWM channel"
+        self.write(self.__LED0_ON_L+4*channel, on & 0xFF)
+        self.write(self.__LED0_ON_H+4*channel, on >> 8)
+        self.write(self.__LED0_OFF_L+4*channel, off & 0xFF)
+        self.write(self.__LED0_OFF_H+4*channel, off >> 8)
+        if (self.debug):
+            print("channel: %d  LED_ON: %d LED_OFF: %d" % (channel, on, off))
 
-  # Converting altitude and azimuth pulse to angles of the sun
-  pwm.setServoPulse(1, altitudePulse)
-  pwm.setServoPulse(0, azimuthPulse)
-  time.sleep(2)
+    def setServoPulse(self, channel, pulse):
+        "Sets the Servo Pulse,The PWM frequency must be 50HZ"
+        pulse = pulse*4096/20000  # PWM frequency is 50HZ,the period is 20000us
+        self.setPWM(channel, 0, int(pulse))
 
-  # Kill the servos
-  pwm.setPWM(0,0,0)
-  pwm.setPWM(1,0,0)
-  
-  getSunPosition()
-
-  
 
 """
 
@@ -130,6 +95,3 @@ if __name__=='__main__':
       pwm.setServoPulse(0,i) 
       time.sleep(0.02)  
 """
-
-
-	
