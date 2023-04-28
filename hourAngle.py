@@ -37,8 +37,7 @@ def calculatePulsesOnSunPosition(current: datetime):
     return (azPulse, altPulse)
 
 
-@staticmethod
-def mapValue(num, in_min, in_max, out_min, out_max):           # (3)
+def mapValue(num, in_min, in_max, out_min, out_max):
     """Helper method to map an input value (v_in)
        between alternative max/min ranges."""
     num = (num - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
