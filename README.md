@@ -11,15 +11,6 @@ Program to control a servo to get the maximum sun exposure
 - [@skittleson](https://www.github.com/skittleson)
 
 
-## Deployment
-
-To deploy this project run
-
-```bash
-  npm run deploy
-```
-
-
 ## Installation
 
 To use this solar tracker you will need Python 3.7 or later. You will also need to install the astropy library with pip, as well as pytest to run the test code. 
